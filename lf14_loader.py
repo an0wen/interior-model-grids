@@ -19,14 +19,15 @@ list_met_lf14,list_age_lf14,list_finc_lf14,list_m_lf14,list_fenv_lf14,list_r_lf1
 
 dim_met_lf14 = np.array([1.0,50.0])
 dim_age_lf14 = np.array([0.1,1.0,10.0])
+dim_logage_lf14 = np.log10(dim_age_lf14)
 dim_finc_lf14= np.array([0.1,10.0,1000.0])
-dim_teq_lf14 = 278.0*(dim_finc_lf14)**(0.25)
+dim_teq_lf14 = 278.6*(dim_finc_lf14)**(0.25)
 dim_mass_lf14= np.array([1,1.5,2.4,3.6,5.5,8.5,13,20])
 dim_fenv_lf14= np.array([0.01,0.02,0.05,0.1,0.2,0.5,1.0,2.0,5.0,10.0,20.0])
 
 data_r_lf14 = np.reshape(list_r_lf14,(2,3,3,8,11))
 
-interp_lf14 = RegularGridInterpolator((dim_met_lf14, dim_age_lf14, dim_teq_lf14, dim_mass_lf14, dim_fenv_lf14), data_r_lf14, method='linear', bounds_error=False, fill_value=np.inf)
+interp_lf14 = RegularGridInterpolator((dim_met_lf14, dim_logage_lf14, dim_finc_lf14, dim_mass_lf14, dim_fenv_lf14), data_r_lf14, method='linear', bounds_error=False, fill_value=np.inf)
 
 def radius_lf14(met,age,teq,mp,fenv):
     '''
@@ -43,14 +44,18 @@ def radius_lf14(met,age,teq,mp,fenv):
     - mp: 1D numpy array of any length
     - everything else: scalar
     '''
+    # Interpolation is performed linearly in incident flux (finc), not linearly in temperature
+    finc = (tirr/278.6)**4
+    # Interpolation is performed linearly in log10(age), not age
+    logage = np.log10(age)
     # If all parameters are scalars, evaluate and return a single value
     if isinstance(mp, (float, int)):
-        return interp_lf14((met,age,teq,mp,fenv)).item()
+        return interp_lf14((met,logage,finc,mp,fenv)).item()
     # If all are arrays of the same length, evaluate for each set of parameters
     elif isinstance(mp, np.ndarray):
         points = np.array([np.full(len(mp),met),
-                           np.full(len(mp),age),
-                           np.full(len(mp),teq),
+                           np.full(len(mp),logage),
+                           np.full(len(mp),finc),
                            mp,
                            np.full(len(mp),fenv)]).T  # Stack the arrays into a 2D array of points
         return interp_lf14(points)  # This will return an array of results
