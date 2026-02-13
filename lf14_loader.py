@@ -45,7 +45,7 @@ def radius_lf14(met,age,teq,mp,fenv):
     - everything else: scalar
     '''
     # Interpolation is performed linearly in incident flux (finc), not linearly in temperature
-    finc = (tirr/278.6)**4
+    finc = (teq/278.6)**4
     # Interpolation is performed linearly in log10(age), not age
     logage = np.log10(age)
     # If all parameters are scalars, evaluate and return a single value
