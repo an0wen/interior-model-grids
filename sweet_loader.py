@@ -38,7 +38,7 @@ listrpfull = np.delete(listrpfull, np.arange(17, listrpfull.size, 18))
 
 
 # Make SWE interpolator
-swe_dim_wmf = np.array(swe_wmfs)/100
+swe_dim_wmf = np.array(swe_wmfs)
 swe_dim_teq = np.array(swe_teqs)
 swe_dim_mass = np.array(swe_masses)
 swe_dim_age = swe_ages
@@ -50,7 +50,7 @@ swe_data_radius = np.reshape(listrpfull,(2,2,12,7,20,17))
 # Value for extrapolation:
 # - np.nan for nan
 # - None for extrapolation
-fill_value = None
+fill_value = np.nan
 interp_swe = RegularGridInterpolator((swe_dim_top,
                                       swe_dim_star,
                                       swe_dim_wmf,
@@ -66,7 +66,7 @@ def radius_swe(top,star,wmf,teq,mp,age):
     Physical parameters:
     - chosen top of the radius: 0 for 20 mbar (clear atmosphere) or 1 for 1 microbar (high altitude clouds)
     - host star spectral type: 0 for M-dwarf or 1 for G-type star
-    - planet water mass fraction (wmf): 0.001 to 1
+    - planet water mass fraction (wmf): 0.1 to 100 %
     - planet equilibrium temperature (teq): 500 to 700 K
     - planet mass (mp): 0.2 to 20 Me
     - system age (age): 0.001 to 20 Gyr
